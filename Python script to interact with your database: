@@ -1,0 +1,66 @@
+Create a Python script to interact with your database:
+import mysql.connector
+
+def create_connection():
+    try:
+        conn = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="root",
+            database="StudentDB"
+        )
+        return conn
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+def display_students(cursor):
+    try:
+        cursor.execute("SELECT * FROM Students")
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row)
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+def add_student(cursor, conn, name, email, phone, dob):
+    try:
+        cursor.execute(
+            "INSERT INTO Students (name, email, phone, dob) VALUES (%s, %s, %s, %s)",
+            (name, email, phone, dob)
+        )
+        conn.commit()
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+def main():
+    conn = create_connection()
+    if conn is None:
+        return
+    
+    cursor = conn.cursor()
+    
+    while True:
+        print("\n1. Display Students")
+        print("2. Add Student")
+        print("3. Exit")
+        choice = input("Enter choice: ")
+        
+        if choice == '1':
+            display_students(cursor)
+        elif choice == '2':
+            name = input("Enter name: ")
+            email = input("Enter email: ")
+            phone = input("Enter phone: ")
+            dob = input("Enter date of birth (YYYY-MM-DD): ")
+            add_student(cursor, conn, name, email, phone, dob)
+        elif choice == '3':
+            break
+        else:
+            print("Invalid choice, please try again.")
+    
+    cursor.close()
+    conn.close()
+
+if __name__ == "__main__":
+    main()
